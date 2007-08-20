@@ -11,7 +11,7 @@
 %define gcc_target_platform	%{_target_platform}
 
 # Define old libgcj release tag before phagocytation + 1
-%define old_libgcj_release	8mdk
+%define old_libgcj_release	%mkrel 8
 
 # Actually where libgcj.jar should go
 %define gcc_datadir             %{_datadir}/gcc-%{version}
@@ -548,8 +548,8 @@ BuildRequires:  glibc-devel >= 2.2.4
 %else
 Requires:	glibc-devel
 %endif
-Prereq:		/sbin/install-info
-Prereq:		/usr/sbin/update-alternatives
+Requires(post):		info-install update-alternatives
+Requires(postun):		info-install update-alternatives
 # Dadou - 2.96-0.46mdk - ExcludeArch: ppc because this GCC-3.0 snapshot is too
 #                        buggy to be safely used on PPC. We currently use
 #                        GCC-2.95.3 and will use GCC-3.0 when it will be ready
@@ -583,7 +583,8 @@ Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-cpp = %{version}-%{release}, glibc-devel, make
 Requires:	libstdc++2.10 = %{version}
 Requires:	libstdc++2.10-devel = %{version}
-Prereq:		/usr/sbin/update-alternatives
+Requires(post):		update-alternatives
+Requires(postun):		update-alternatives
 
 %description c++
 This package adds C++ support to the GNU C compiler. It includes support
@@ -682,7 +683,7 @@ Provides:	gcc%{branch}-java = %{version}-%{release}
 Requires:	%{name} = %{version}-%{release}
 Requires:	libgcj = %{version}-%{release}
 Requires:	libgcj-devel = %{version}-%{release}
-Prereq:		/usr/sbin/update-alternatives
+Requires(post):		update-alternatives
 
 %description java
 This package adds experimental support for compiling Java(tm) programs and
@@ -750,8 +751,8 @@ Group:		Development/C
 Obsoletes:	gcc%{branch}-cpp
 Provides:	gcc%{branch}-cpp = %{version}-%{release}
 %endif
-Prereq:		/sbin/install-info
-Prereq:		/usr/sbin/update-alternatives
+Requires(post):		info-install
+Requires(post):		update-alternatives
 
 %description cpp
 The C preprocessor is a 'macro processor' which is used automatically
@@ -785,8 +786,8 @@ Group:		Development/Other
 Obsoletes:	gcc%{branch}-colorgcc
 Provides:	gcc%{branch}-colorgcc = %{version}-%{release}
 %endif
-Prereq:		%{name}, %{name}-c++
-PreReq:		/usr/sbin/update-alternatives
+Requires(post):		%{name}, %{name}-c++
+Requires(post):		update-alternatives
 Requires:	perl
 
 %description colorgcc
@@ -796,6 +797,8 @@ GCC output colorizer.
 %package doc
 Summary:	Gcc documentation
 Group:		Development/Other
+Requires(post):		info-install
+Requires(preun):		info-install
 %if %{system_compiler}
 Obsoletes:	gcc%{branch}-doc
 Provides:	gcc%{branch}-doc = %{version}-%{release}
