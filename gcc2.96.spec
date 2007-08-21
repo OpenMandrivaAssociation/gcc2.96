@@ -549,7 +549,8 @@ BuildRequires:  glibc-devel >= 2.2.4
 Requires:	glibc-devel
 %endif
 Requires(post):		info-install update-alternatives
-Requires(postun):		info-install update-alternatives
+Requires(postun):		update-alternatives
+Requires(preun):		info-install
 # Dadou - 2.96-0.46mdk - ExcludeArch: ppc because this GCC-3.0 snapshot is too
 #                        buggy to be safely used on PPC. We currently use
 #                        GCC-2.95.3 and will use GCC-3.0 when it will be ready
