@@ -1,3 +1,14 @@
+
+# PLEASE READ BEFORE BUILDING!
+# (anssi) 2007-09-16, FIXME/TODO
+# This package is not buildable with current gcc, but it can be built
+# either with itself or with gcc3.3. It needs a patch for new bison or
+# an older bison bundled. However, when built with glibc 2.4/2.6, the
+# shared object file libstdc++-libc6.2-2.so.3 will contain undefined
+# symbols. You can test for this with, for example, old Mozilla Phoenix
+# prereleases which are linked against this lirary. It builds correctly
+# with 2006.0 glibc 2.3. This has not been investigated further, yet.
+
 %define _unpackaged_files_terminate_build 0
 # RH-118, DB-5
 %define name			gcc%{package_suffix}
