@@ -548,7 +548,6 @@ Patch1011:	libgcj-new-boehm-gc-ltconfig.patch
 Patch1020:	gcc-libjava-datadir.patch
 
 URL:		http://gcc.gnu.org/
-BuildRoot:	%{_tmppath}/gcc-%{version}-root
 Requires:	binutils >= 2.11.93.0.2-1mdk
 BuildRequires:	binutils >= 2.11.93.0.2-1mdk
 BuildRequires:	zlib-devel
