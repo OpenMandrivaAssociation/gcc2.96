@@ -1673,8 +1673,12 @@ if [ ! -f %{_bindir}/colorgcc-%{version} ]; then
 fi
 
 %if %{build_objc}
+%if %mdkversion < 200900
 %post objc -p /sbin/ldconfig
+%endif
+%if %mdkversion < 200900
 %postun objc -p /sbin/ldconfig
+%endif
 %endif
 
 %post cpp
@@ -1717,8 +1721,12 @@ fi
 %endif
 
 %if %{build_java}
+%if %mdkversion < 200900
 %post -n libgcj2.96 -p /sbin/ldconfig
+%endif
+%if %mdkversion < 200900
 %postun -n libgcj2.96 -p /sbin/ldconfig
+%endif
 %endif
 
 %post c++
@@ -1730,12 +1738,20 @@ if [ ! -f %{_bindir}/g++-%{version} ]; then
   update-alternatives --remove g++ %{_bindir}/g++-%{version}
 fi
 
+%if %mdkversion < 200900
 %post -n libstdc++2.10 -p /sbin/ldconfig
+%endif
+%if %mdkversion < 200900
 %postun -n libstdc++2.10 -p /sbin/ldconfig
+%endif
 
 %ifarch %{ix86} alpha
+%if %mdkversion < 200900
 %post -n libstdc++-compat -p /sbin/ldconfig
+%endif
+%if %mdkversion < 200900
 %postun -n libstdc++-compat -p /sbin/ldconfig
+%endif
 %endif
 
 %if %{build_doc}
