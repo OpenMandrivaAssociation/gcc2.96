@@ -22,7 +22,7 @@
 %define gcc_target_platform	%{_target_platform}
 
 # Define old libgcj release tag before phagocytation + 1
-%define old_libgcj_release	%mkrel 8
+%define old_libgcj_release	%mkrel 9
 
 # Actually where libgcj.jar should go
 %define gcc_datadir             %{_datadir}/gcc-%{version}
