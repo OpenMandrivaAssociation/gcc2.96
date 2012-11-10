@@ -1,0 +1,99 @@
+2001-08-09  Jakub Jelinek  <jakub@redhat.com>
+
+	* dyn_load.c (GC_register_dynlib_callback): New.
+	(GC_register_dynamic_libraries): New implementation if
+	dl_iterate_phdr exists.
+
+--- boehm-gc/dyn_load.c.jj	Mon Jul 24 00:06:16 2000
++++ boehm-gc/dyn_load.c	Thu Aug  9 04:10:10 2001
+@@ -26,6 +26,10 @@
+  * None of this is safe with dlclose and incremental collection.
+  * But then not much of anything is safe in the presence of dlclose.
+  */
++
++#ifndef _GNU_SOURCE
++# define _GNU_SOURCE
++#endif
+ #ifndef MACOS
+ #  include <sys/types.h>
+ #endif
+@@ -299,14 +303,68 @@ void GC_register_dynamic_libraries()
+ 
+ #if defined(LINUX) && defined(__ELF__) || defined(SCO_ELF)
+ 
++#include <elf.h>
++#include <link.h>
++
++# if defined(LINUX) \
++     && (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ > 2) \
++         || (__GLIBC__ == 2 && __GLIBC_MINOR__ == 2 && defined(DT_CONFIG)))
++
++#include <stddef.h>
++
++static int GC_register_dynlib_callback(info, size, ptr)
++     struct dl_phdr_info * info;
++     size_t size;
++     void * ptr;
++{
++  const ElfW(Phdr) * p;
++  char * start;
++  register int i;
++
++  /* Make sure struct dl_phdr_info is at least as big as we need.  */
++  if (size < offsetof (struct dl_phdr_info, dlpi_phnum)
++      + sizeof (info->dlpi_phnum))
++    return -1;
++
++  /* Skip the first object - it is the main program.  */
++  if (*(int *)ptr == 0)
++    {
++      *(int *)ptr = 1;
++      return 0;
++    }
++
++  p = info->dlpi_phdr;
++  for( i = 0; i < (int)(info->dlpi_phnum); ((i++),(p++)) ) {
++    switch( p->p_type ) {
++      case PT_LOAD:
++	{
++	  if( !(p->p_flags & PF_W) ) break;
++	  start = ((char *)(p->p_vaddr)) + info->dlpi_addr;
++	  GC_add_roots_inner(start, start + p->p_memsz, TRUE);
++	}
++      break;
++      default:
++	break;
++    }
++  }
++
++  return 0;
++}     
++
++void GC_register_dynamic_libraries()
++{
++  int tmp = 0;
++
++  dl_iterate_phdr(GC_register_dynlib_callback, &tmp);
++}
++
++#else /* !DL_ITERATE_PHDR */
++
+ /* Dynamic loading code for Linux running ELF. Somewhat tested on
+  * Linux/x86, untested but hopefully should work on Linux/Alpha. 
+  * This code was derived from the Solaris/ELF support. Thanks to
+  * whatever kind soul wrote that.  - Patrick Bridges */
+ 
+-#include <elf.h>
+-#include <link.h>
+-
+ /* Newer versions of Linux/Alpha and Linux/x86 define this macro.  We
+  * define it for those older versions that don't.  */
+ #  ifndef ElfW
+@@ -379,6 +437,7 @@ void GC_register_dynamic_libraries()
+     }
+ }
+ 
++#endif /* !DL_ITERATE_PHDR */
+ #endif
+ 
+ #if defined(IRIX5) || defined(USE_PROC_FOR_LIBRARIES)

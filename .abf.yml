@@ -1,0 +1,8 @@
+sources:
+  "boehm-gc-3.1-20020314.tar.bz2:"	327eeecb1c13b5bb799749a5d1fc131ccadb27f9
+  "colorgcc-1.3.2.tar.bz2:"	3e85b169a9374831a0235650158ed3abd28ac448
+  "egcs-libstdc++-compat.tar.bz2:"	f0d4e84ce00dd00db0fc0574bc3760d52b90d248
+  "gcc-2.95.2.tar.bz2:"	0a1f540e0d6657f5189b1a4e78c1f9aab57eae28
+  "gcc-consistency-test.tar.bz2:"	59ed2ddab8ec9f1c0ccc8b02d8b3f9d1d9e8af76
+  "gcc-cpp-20010126.tar.bz2:"	398f828437d24e09710b7c5cf51010f2778e9153
+  "libgcj-2.96.tar.bz2:"	d7920eb45c62f1fd2eb76bd9f6c8ed596efc6094

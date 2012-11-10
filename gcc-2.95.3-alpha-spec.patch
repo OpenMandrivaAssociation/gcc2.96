@@ -1,0 +1,11 @@
+--- gcc-2.95.2/gcc/config/alpha/linux.h.chmou	Thu Jun 29 13:43:31 2000
++++ gcc-2.95.2/gcc/config/alpha/linux.h	Thu Jun 29 14:50:32 2000
+@@ -29,7 +29,7 @@
+ SUB_CPP_PREDEFINES
+ 
+ #undef LIB_SPEC
+-#define LIB_SPEC "%{pg:-lgmon} %{pg:-lc_p} %{!pg:-lc}"
++#define LIB_SPEC "%{pg:-lc_g} %{pg:-lc_p} %{!pg:-lc}"
+ 
+ /* Show that we need a GP when profiling.  */
+ #undef TARGET_PROFILING_NEEDS_GP

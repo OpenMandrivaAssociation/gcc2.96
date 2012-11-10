@@ -1,0 +1,46 @@
+2001-09-11  Joseph S. Myers  <jsm28@cam.ac.uk>
+
+	PR c/4294
+	* c-common.c (split_specs_attrs): Allow for empty attributes with
+	empty TREE_PURPOSE.
+
+2001-09-11  Joseph S. Myers  <jsm28@cam.ac.uk>
+
+	* testsuite/gcc.c-torture/compile/20010911-1.c: New test.
+
+2003-01-07  Gwenole Beauchesne  <gbeauchesne@mandrakesoft.com>
+
+	* testsuite/g++.old-deja/g++.other/parse2.C: New test.
+
+--- gcc-2.95.2/gcc/testsuite/g++.old-deja/g++.other/parse2.C.pr4294	2003-01-07 10:35:45.000000000 +0100
++++ gcc-2.95.2/gcc/testsuite/g++.old-deja/g++.other/parse2.C	2003-01-07 10:35:20.000000000 +0100
+@@ -0,0 +1,9 @@
++// Build don't link:
++
++template< typename T > T f(T x) {
++  return -x;
++}
++
++T f(char x) { // ERROR - parse error
++  return 0;
++}
+--- gcc-2.95.2/gcc/testsuite/gcc.c-torture/compile/20010911-1.c.pr4294	2003-01-07 10:33:06.000000000 +0100
++++ gcc-2.95.2/gcc/testsuite/gcc.c-torture/compile/20010911-1.c	2003-01-07 10:33:06.000000000 +0100
+@@ -0,0 +1,4 @@
++/* Test for segfault handling an empty attribute.  */
++/* Origin: PR c/4294 from <tori@ringstrom.mine.nu>.  */
++
++void __attribute__(()) foo();
+--- gcc-2.95.2/gcc/c-common.c.pr4294	2003-01-07 10:32:39.000000000 +0100
++++ gcc-2.95.2/gcc/c-common.c	2003-01-07 10:33:06.000000000 +0100
+@@ -1165,7 +1165,9 @@ split_specs_attrs (specs_attrs, declspec
+ 	      s = t;
+ 	    }
+ 	}
+-      else
++      /* The TREE_PURPOSE may also be empty in the case of
++	 __attribute__(()).  */
++      else if (TREE_PURPOSE (t) != NULL_TREE)
+ 	{
+ 	  if (attrs == NULL_TREE)
+ 	    attrs = a = TREE_PURPOSE (t);

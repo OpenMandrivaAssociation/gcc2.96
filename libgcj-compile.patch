@@ -1,0 +1,220 @@
+--- libgcj/boehm-gc/ChangeLog.jj	Thu Jul 13 16:51:17 2000
++++ libgcj/boehm-gc/ChangeLog	Mon Aug  7 14:31:25 2000
+@@ -1,3 +1,20 @@
++2000-08-02  Tom Tromey  <tromey@cygnus.com>
++
++	* gc_priv.h (GC_generic_malloc_inner): Prototype.
++	(GC_generic_malloc): Likewise.
++	(GC_add_to_black_list_normal): Likewise.
++	(GC_find_header): Likewise.
++	(GC_ADD_TO_BLACK_LIST_NORMAL): Cast bits argument to word.
++	* gc_mark.h (GC_find_start): Prototype.
++	(GC_signal_mark_stack_overflow): Likewise.
++
++2000-07-24  Alexandre Oliva  <aoliva@redhat.com>
++
++	* configure.in (THREADS): Don't --enable-threads on IRIX <= 5.*.
++	* configure: Rebuilt.
++
++	* dyn_load.c (GC_scratch_last_end_ptr): Don't declare a #define.
++
+ 2000-06-20  Bryce McKinlay  <bryce@albatross.co.nz>
+ 
+ 	Imported version 5.1.
+--- libgcj/boehm-gc/configure.jj	Thu Apr 27 11:35:16 2000
++++ libgcj/boehm-gc/configure	Mon Aug  7 14:31:25 2000
+@@ -2072,6 +2072,10 @@ if test "$THREADS" = yes; then
+     *-*-win*)
+        THREADS=win32
+        ;;
++    *-*-irix[1-5].*)
++       # No built-in threads library on IRIX 5.* and older.
++       THREADS=none
++       ;;
+     *-*-irix*)
+        # FIXME: for now, choose POSIX, because we implement that.
+        # Later, choose irix threads.
+--- libgcj/boehm-gc/configure.in.jj	Tue Apr 25 07:35:22 2000
++++ libgcj/boehm-gc/configure.in	Mon Aug  7 14:31:25 2000
+@@ -44,6 +44,10 @@ if test "$THREADS" = yes; then
+     *-*-win*)
+        THREADS=win32
+        ;;
++    *-*-irix[[1-5]].*)
++       # No built-in threads library on IRIX 5.* and older.
++       THREADS=none
++       ;;
+     *-*-irix*)
+        # FIXME: for now, choose POSIX, because we implement that.
+        # Later, choose irix threads.
+--- libgcj/boehm-gc/dyn_load.c.jj	Tue Apr 25 07:35:22 2000
++++ libgcj/boehm-gc/dyn_load.c	Mon Aug  7 14:31:25 2000
+@@ -393,7 +393,9 @@ extern void * GC_roots_present();
+ 	/* The type is a lie, since the real type doesn't make sense here, */
+ 	/* and we only test for NULL.					   */
+ 
++#ifndef GC_scratch_last_end_ptr
+ extern ptr_t GC_scratch_last_end_ptr; /* End of GC_scratch_alloc arena	*/
++#endif
+ 
+ /* We use /proc to track down all parts of the address space that are	*/
+ /* mapped by the process, and throw out regions we know we shouldn't	*/
+--- libgcj/boehm-gc/gc_mark.h.jj	Tue Apr 25 07:35:22 2000
++++ libgcj/boehm-gc/gc_mark.h	Mon Aug  7 14:31:25 2000
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1991-1994 by Xerox Corporation.  All rights reserved.
++ * Copyright (c) 1991-1994, 2000 by Xerox Corporation.  All rights reserved.
+  *
+  * THIS MATERIAL IS PROVIDED AS IS, WITH ABSOLUTELY NO WARRANTY EXPRESSED
+  * OR IMPLIED.  ANY USE IS AT YOUR OWN RISK.
+@@ -117,9 +117,13 @@ extern mse * GC_mark_stack_top;
+ 
+ extern mse * GC_mark_stack;
+ 
+-ptr_t GC_find_start();
++#ifdef PRINT_BLACK_LIST
++ptr_t GC_find_start(ptr_t, hdr*, word);
++#else
++ptr_t GC_find_start(ptr_t, hdr*);
++#endif
+ 
+-mse * GC_signal_mark_stack_overflow();
++mse * GC_signal_mark_stack_overflow(mse *);
+ 
+ # ifdef GATHERSTATS
+ #   define ADD_TO_ATOMIC(sz) GC_atomic_in_use += (sz)
+--- libgcj/boehm-gc/gc_priv.h.jj	Mon May 15 10:38:34 2000
++++ libgcj/boehm-gc/gc_priv.h	Mon Aug  7 14:31:25 2000
+@@ -1597,23 +1597,23 @@ void GC_register_data_segments();
+ /* Black listing: */
+ void GC_bl_init(); 	
+ # ifndef ALL_INTERIOR_POINTERS
+-    void GC_add_to_black_list_normal(/* bits, maybe source */);
++    void GC_add_to_black_list_normal(word /* bits, maybe source */);
+ 			/* Register bits as a possible future false	*/
+ 			/* reference from the heap or static data	*/
+ #   ifdef PRINT_BLACK_LIST
+ #     define GC_ADD_TO_BLACK_LIST_NORMAL(bits, source) \
+-			GC_add_to_black_list_normal(bits, source)
++			GC_add_to_black_list_normal((word) bits, source)
+ #   else
+ #     define GC_ADD_TO_BLACK_LIST_NORMAL(bits, source) \
+-			GC_add_to_black_list_normal(bits)
++			GC_add_to_black_list_normal((word) bits)
+ #   endif
+ # else
+ #   ifdef PRINT_BLACK_LIST
+ #     define GC_ADD_TO_BLACK_LIST_NORMAL(bits, source) \
+-			GC_add_to_black_list_stack(bits, source)
++			GC_add_to_black_list_stack((word) bits, source)
+ #   else
+ #     define GC_ADD_TO_BLACK_LIST_NORMAL(bits, source) \
+-			GC_add_to_black_list_stack(bits)
++			GC_add_to_black_list_stack((word) bits)
+ #   endif
+ # endif
+ 
+@@ -1713,7 +1713,7 @@ void GC_collect_a_little_inner(/* int n 
+ 				/* collection work, if appropriate.	*/
+ 				/* A unit is an amount appropriate for  */
+ 				/* HBLKSIZE bytes of allocation.	*/
+-ptr_t GC_generic_malloc(/* bytes, kind */);
++ptr_t GC_generic_malloc(word bytes, int kind);
+ 				/* Allocate an object of the given	*/
+ 				/* kind.  By default, there are only	*/
+ 				/* a few kinds: composite(pointerfree), */
+@@ -1727,7 +1727,7 @@ ptr_t GC_generic_malloc_ignore_off_page(
+ 				/* As above, but pointers past the 	*/
+ 				/* first page of the resulting object	*/
+ 				/* are ignored.				*/
+-ptr_t GC_generic_malloc_inner(/* bytes, kind */);
++ptr_t GC_generic_malloc_inner(word bytes, int kind);
+ 				/* Ditto, but I already hold lock, etc.	*/
+ ptr_t GC_generic_malloc_words_small GC_PROTO((size_t words, int kind));
+ 				/* As above, but size in units of words */
+@@ -1757,7 +1757,7 @@ void GC_remove_header(/*h*/);
+ 				/* Remove the header for block h.	*/
+ void GC_remove_counts(/*h, sz*/);
+ 				/* Remove forwarding counts for h.	*/
+-hdr * GC_find_header(/*p*/);	/* Debugging only.			*/
++hdr * GC_find_header(ptr_t /*p*/);	/* Debugging only.			*/
+ 
+ void GC_finalize();	/* Perform all indicated finalization actions	*/
+ 			/* on unmarked objects.				*/
+--- libgcj/libjava/java/lang/reflect/natMethod.cc.jj	Thu Jul 13 16:51:24 2000
++++ libgcj/libjava/java/lang/reflect/natMethod.cc	Mon Aug  7 14:05:27 2000
+@@ -413,7 +413,7 @@ _Jv_CallAnyMethodA (jobject obj,
+ 
+   try
+     {
+-      ffi_call (&cif, (void (*) (...)) meth->ncode, result, values);
++      ffi_call (&cif, (void (*) ()) meth->ncode, result, values);
+     }
+   catch (Throwable *ex2)
+     {
+--- libgcj/libjava/jni.cc.jj	Wed Apr 26 16:02:09 2000
++++ libgcj/libjava/jni.cc	Mon Aug  7 14:07:02 2000
+@@ -1784,7 +1784,7 @@ _Jv_JNIMethod::call (ffi_cif *, void *re
+   memcpy (&real_args[offset], args, _this->args_raw_size);
+ 
+   // The actual call to the JNI function.
+-  ffi_raw_call (&_this->jni_cif, (void (*) (...)) _this->function,
++  ffi_raw_call (&_this->jni_cif, (void (*) ()) _this->function,
+ 		ret, real_args);
+ 
+   _Jv_JNI_PopSystemFrame (env);
+--- libgcj/libjava/interpret.cc.jj	Fri Jun  2 21:31:35 2000
++++ libgcj/libjava/interpret.cc	Mon Aug  7 14:08:06 2000
+@@ -406,7 +406,7 @@ void _Jv_InterpMethod::continue1 (_Jv_In
+   _Jv_word *pool_data   = defining_class->constants.data;
+   
+   /* these two are used in the invokeXXX instructions */
+-  void (*fun)(...);
++  void (*fun)();
+   _Jv_ResolvedMethod* rmeth;
+ 
+ #define INSN_LABEL(op) &&insn_##op
+@@ -684,13 +684,13 @@ void _Jv_InterpMethod::continue1 (_Jv_In
+ 	  {
+ 	    // final methods do not appear in the vtable,
+ 	    // if it does not appear in the superclass.
+-	    fun = (void (*) (...)) rmeth->method->ncode;
++	    fun = (void (*) ()) rmeth->method->ncode;
+ 	  }
+ 	else
+ 	  {
+ 	    jobject rcv = sp[0].o;
+ 	    _Jv_VTable *table = *(_Jv_VTable**)rcv;
+-	    fun = (void (*) (...))table->method[rmeth->vtable_index];
++	    fun = (void (*) ())table->method[rmeth->vtable_index];
+ 	  }
+       }
+       goto perform_invoke;
+@@ -2148,7 +2148,7 @@ void _Jv_InterpMethod::continue1 (_Jv_In
+ 
+ 	NULLCHECK(sp[0]);
+ 
+-	fun = (void (*) (...))rmeth->method->ncode;
++	fun = (void (*) ())rmeth->method->ncode;
+       }
+       goto perform_invoke;
+ 
+@@ -2162,7 +2162,7 @@ void _Jv_InterpMethod::continue1 (_Jv_In
+ 	sp -= rmeth->stack_item_count;
+ 
+ 	_Jv_InitClass (rmeth->klass);
+-	fun = (void (*) (...))rmeth->method->ncode;
++	fun = (void (*) ())rmeth->method->ncode;
+       }
+       goto perform_invoke;
+ 
+@@ -2181,7 +2181,7 @@ void _Jv_InterpMethod::continue1 (_Jv_In
+ 
+ 	jobject rcv = sp[0].o;
+ 
+-	fun = (void (*) (...))
++	fun = (void (*) ())
+ 	  _Jv_LookupInterfaceMethod (rcv->getClass (),
+ 				     rmeth->method->name,
+ 				     rmeth->method->signature);

@@ -1,0 +1,623 @@
+2001-07-03  Tom Tromey  <tromey@redhat.com>
+
+	Fix for PR bootstrap/3281:
+	* aclocal.m4, configure, Makefile.in: Rebuilt.
+	* acinclude.m4: Set mkinstalldirs for in-tree build.
+
+20010617 Release Manager
+
+        * GCC 3.0 Released.
+
+2001-06-12  Tom Tromey  <tromey@redhat.com>
+
+	* aclocal.m4, configure: Rebuilt.
+	* acinclude.m4: Find configure.host in srcdir.
+
+2001-06-07  Tom Tromey  <tromey@redhat.com>
+
+	For PR bootstrap/3075:
+	* configure, aclocal.m4, Makefile.in: Rebuilt.
+	* configure.in: Don't call AC_CONFIG_AUX_DIR or
+	AC_CANONICAL_SYSTEM.
+	* acinclude.m4 (BOEHM_CONFIGURE): Call AC_CONFIG_AUX_DIR and
+	AC_CANONICAL_SYSTEM here.
+	* Makefile.am (CONFIG_STATUS_DEPENDENCIES): Use srcdir, not
+	boehm_gc_basedir.
+
+2001-05-01  Jeffrey Oldham  <oldham@codesourcery.com>
+
+	* gc_priv.h (UNLOCK): Change type of GC_noop1 argument.
+	(GC_noop1): Change declaration to take one argument.
+
+2001-04-26  Alexandre Oliva  <aoliva@redhat.com>
+
+	* configure.in: Obtain THREADS with `gcc -v'.
+	* configure: Rebuilt.
+
+2001-04-05  Hans Boehm  <hans_boehm@hp.com>
+
+	* misc.c: Back out buggy changes to stack clearing code.
+	Reduce CLEAR_SIZE to 1/4 of original value to reduce time
+	spent clearing memory.
+
+2001-04-04  Hans Boehm  <hans_boehm@hp.com>
+
+	* finalize.c:
+	- Accomodate finalization requests for static objects.
+	  (Will be required by hash synchronization.  May be needed
+	  in some configurations now.)
+
+	* gc_priv.h:
+	- Define MIN_WORDS.  All allocation requests are rounded
+	  up to at least this size.  Removes a subtle assumption that
+	  Java objects have a 2 word header.
+
+	* gcconfig.h:
+	- Adjust Linux/IA64 configuration for non-ancient kernels.
+	  (Necessary fix for IA64.)
+
+	* linux_threads.c:
+	- Fix syntax error in currently unused code.  Will be needed
+	  for Linux/PA-RISC.
+
+	* malloc.c:
+	- Handle MIN_WORDS.
+
+	* misc.c:
+	- Handle MIN_WORDS.
+	- Change stack cleaning code to typically clear about one tenth
+	  the memory it used to in the threads configuration.  Occasionally
+	  still clear more.  (This is really a fix for a long-standing
+	  and fairly significant performance bug with threads.)
+
+	* os_dep.c:
+	- Fix the code for finding the beginning of the data segment under
+	  Linux.  I believe this is necessary for some IA64 Linux
+	  distributions.  It will also helo other platforms, though those
+	  may additionally require a gcconfig.h adjustment.  (This basically
+	  works around the absence of a data_start or __data_start
+	  definition in glibc.)
+
+	* test.c:
+	- Handle rounding due to MIN_WORDS.
+
+2001-03-22  Tom Tromey  <tromey@redhat.com>
+
+	* Makefile.am (gctest_LDFLAGS): Use -shared-libgcc.
+
+2001-03-19  Tom Tromey  <tromey@redhat.com>
+
+	* Makefile.in: Rebuilt.
+	* Makefile.am (gctest_LDFLAGS): new macro.
+
+2001-03-16  Tom Tromey  <tromey@redhat.com>
+
+	* Makefile.in: Rebuilt.
+	* Makefile.am (TESTS_ENVIRONMENT): New macro.
+
+2001-01-23  Rod Stewart <stewart@lab43.org>
+
+	* gcconfig.h: Check for `__arm__', not `arm'.
+
+2000-12-30  Bryce McKinlay  <bryce@albatross.co.nz>
+
+	* configure.in: Rename THREADLIB to THREADLIBS.
+	* Makefile.am (LINK): Add $(THREADLIBS) to libtool command line. This
+	ensures that we link the correct version of the linuxthreads semaphore
+	functions.
+	* Makefile.in: Rebuilt.
+	* configure: Rebuilt.
+	
+	* linux_thread.c (GC_thr_init, GC_suspend_handler): Add SIGABRT to the 
+	list of signals which are not blocked during suspend in the NO_SIGNALS
+	case.
+
+2000-12-23  Hans Boehm  <Hans_Boehm@hp.com>
+
+	* gcj_mlc.c (GC_gcj_malloc): Don't release allocation lock twice.
+
+2000-12-15  Bryce McKinlay  <bryce@albatross.co.nz>
+
+	* Makefile.dist: Renamed from Makefile.orig.
+
+2000-12-11  Alexandre Petit-Bianco  <apbianco@cygnus.com>
+
+	* Makefile.am (gctest_LDADD): Added EXTRA_TEST_LIBS.
+	* configure.in (EXTRA_TEST_LIBS): Check for `dlopen' in -ldl and
+	set accordingly.
+	* Makefile.in: Rebuilt.
+	* configure: Likewise.
+
+2000-12-10  Geoffrey Keating  <geoffk@redhat.com>
+
+	* gcconfig.h: Add new case for powerpc EABI.
+	[PPC]: Handle embedded OS for powerpc simulator.
+
+2000-09-30  Bryce McKinlay  <bryce@albatross.co.nz>
+
+	* configure.in: Define GC_GCJ_SUPPORT. Define NO_DEBUGGING in 
+	cross-compile configuration only.
+	* Makefile.am: Build gcj_mlc.c.
+	* configure, Makefile.in: Rebuilt.
+
+2000-09-10  Alexandre Oliva  <aoliva@redhat.com>
+
+	* acinclude.m4: Include libtool macros from the top level.
+	* aclocal.m4, configure: Rebuilt.
+
+2000-09-04  Anthony Green  <green@redhat.com>
+
+	Fix for PR libgcj/230:
+	* mark.c (GC_mark_from_mark_stack): Remove call to
+	GC_debug_object_start.
+	* gc_priv.h (GC_debug_object_start): Remove prototype.
+
+2000-08-16  Alexandre Oliva  <aoliva@redhat.com>
+
+	* gcconfig.h [OSF1] (_end): Declare as `int'.
+
+--- boehm-gc/Makefile.am	Tue Apr 25 07:35:19 2000
++++ boehm-gc/Makefile.am	Tue Jul 10 00:50:55 2001
+@@ -27,12 +27,15 @@
+ EXTRA_LTLIBRARIES = libgcjgc.la
+ libgcjgc_la_SOURCES = allchblk.c alloc.c blacklst.c checksums.c	\
+ gcconfig.h dbg_mlc.c dyn_load.c finalize.c gc.h gc_alloc.h gc_cpp.h \
+-gc_hdrs.h gc_mark.h gc_priv.h gc_private.h gc_typed.h headers.c	\
++gc_hdrs.h gc_mark.h gc_priv.h gc_private.h gc_typed.h gcj_mlc.c headers.c \
+ hpux_irix_threads.c linux_threads.c malloc.c mallocx.c mark.c mark_rts.c \
+ misc.c new_hblk.c obj_map.c os_dep.c pcr_interface.c ptr_chck.c	\
+ real_malloc.c reclaim.c solaris_pthreads.c solaris_threads.c \
+ solaris_threads.h stubborn.c typd_mlc.c version.h weakpointer.h
+-libgcjgc_la_LIBADD = @addobjs@
++
++# Include THREADLIBS here to ensure that the correct versions of
++# linuxthread semaphore functions get linked:
++libgcjgc_la_LIBADD = @addobjs@ $(THREADLIB)
+ libgcjgc_la_DEPENDENCIES = @addobjs@
+ libgcjgc_la_LDFLAGS = -version-info 1:1:0 -rpath $(toolexeclibdir)
+ 
+--- boehm-gc/Makefile.in	Thu Apr 27 11:35:15 2000
++++ boehm-gc/Makefile.in	Tue Jul 10 00:50:55 2001
+@@ -108,13 +114,16 @@
+ EXTRA_LTLIBRARIES = libgcjgc.la
+ libgcjgc_la_SOURCES = allchblk.c alloc.c blacklst.c checksums.c	\
+ gcconfig.h dbg_mlc.c dyn_load.c finalize.c gc.h gc_alloc.h gc_cpp.h \
+-gc_hdrs.h gc_mark.h gc_priv.h gc_private.h gc_typed.h headers.c	\
++gc_hdrs.h gc_mark.h gc_priv.h gc_private.h gc_typed.h gcj_mlc.c headers.c \
+ hpux_irix_threads.c linux_threads.c malloc.c mallocx.c mark.c mark_rts.c \
+ misc.c new_hblk.c obj_map.c os_dep.c pcr_interface.c ptr_chck.c	\
+ real_malloc.c reclaim.c solaris_pthreads.c solaris_threads.c \
+ solaris_threads.h stubborn.c typd_mlc.c version.h weakpointer.h
+ 
+-libgcjgc_la_LIBADD = @addobjs@
++
++# Include THREADLIB here to ensure that the correct versions of
++# linuxthread semaphore functions get linked:
++libgcjgc_la_LIBADD = @addobjs@ $(THREADLIB)
+ libgcjgc_la_DEPENDENCIES = @addobjs@
+ libgcjgc_la_LDFLAGS = -version-info 1:1:0 -rpath $(toolexeclibdir)
+ 
+@@ -197,15 +206,15 @@
+ LDFLAGS = @LDFLAGS@
+ LIBS = @LIBS@
+ libgcjgc_la_OBJECTS =  allchblk.lo alloc.lo blacklst.lo checksums.lo \
+-dbg_mlc.lo dyn_load.lo finalize.lo headers.lo hpux_irix_threads.lo \
+-linux_threads.lo malloc.lo mallocx.lo mark.lo mark_rts.lo misc.lo \
+-new_hblk.lo obj_map.lo os_dep.lo pcr_interface.lo ptr_chck.lo \
+-real_malloc.lo reclaim.lo solaris_pthreads.lo solaris_threads.lo \
+-stubborn.lo typd_mlc.lo
++dbg_mlc.lo dyn_load.lo finalize.lo gcj_mlc.lo headers.lo \
++hpux_irix_threads.lo linux_threads.lo malloc.lo mallocx.lo mark.lo \
++mark_rts.lo misc.lo new_hblk.lo obj_map.lo os_dep.lo pcr_interface.lo \
++ptr_chck.lo real_malloc.lo reclaim.lo solaris_pthreads.lo \
++solaris_threads.lo stubborn.lo typd_mlc.lo
+ check_PROGRAMS =  gctest$(EXEEXT)
+-gctest_OBJECTS =  test.o
++gctest_OBJECTS =  test.o
+ gctest_DEPENDENCIES =  ./libgcjgc.la
+-gctest_LDFLAGS = 
++gctest_LDFLAGS = 
+ CXXFLAGS = @CXXFLAGS@
+ CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+ LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+--- boehm-gc/aclocal.m4	Thu Jul 13 16:51:17 2000
++++ boehm-gc/aclocal.m4	Tue Jul 10 00:50:55 2001
+--- boehm-gc/configure	Tue Jul 24 14:07:21 2001
++++ boehm-gc/configure	Tue Jul 10 00:50:55 2001
+@@ -2255,11 +2798,11 @@
+ EOF
+ 
+ cat >> confdefs.h <<\EOF
+-#define NO_DEBUGGING 1
++#define JAVA_FINALIZATION 1
+ EOF
+ 
+ cat >> confdefs.h <<\EOF
+-#define JAVA_FINALIZATION 1
++#define GC_GCJ_SUPPORT 1
+ EOF
+ 
+ 
+@@ -2276,6 +2819,10 @@
+ #define SMALL_CONFIG 1
+ EOF
+ 
++   cat >> confdefs.h <<\EOF
++#define NO_DEBUGGING 1
++EOF
++
+ fi
+ 
+ 
+--- boehm-gc/configure.in	Tue Jul 24 14:07:21 2001
++++ boehm-gc/configure.in	Tue Jul 10 00:50:55 2001
+@@ -193,8 +155,8 @@
+ dnl embedded Java.
+ AC_DEFINE(SILENT)
+ AC_DEFINE(NO_SIGNALS)
+-AC_DEFINE(NO_DEBUGGING)
+ AC_DEFINE(JAVA_FINALIZATION)
++AC_DEFINE(GC_GCJ_SUPPORT)
+ 
+ dnl This is something of a hack.  When cross-compiling we turn off
+ dnl some functionality.  We also enable the "small" configuration.
+@@ -203,6 +165,7 @@
+    AC_DEFINE(NO_SIGSET)
+    AC_DEFINE(NO_CLOCK)
+    AC_DEFINE(SMALL_CONFIG)
++   AC_DEFINE(NO_DEBUGGING)
+ fi
+ 
+ AM_CONDITIONAL(USE_LIBDIR, test -z "$with_cross_host")
+--- boehm-gc/finalize.c	Mon May 15 10:38:34 2000
++++ boehm-gc/finalize.c	Wed Apr 25 17:11:11 2001
+@@ -324,6 +324,7 @@
+     struct finalizable_object * curr_fo, * prev_fo;
+     int index;
+     struct finalizable_object *new_fo;
++    hdr *hhdr;
+     DCL_LOCK_STATE;
+ 
+ #   ifdef THREADS
+@@ -402,6 +403,19 @@
+ #	endif
+         return;
+     }
++    GET_HDR(base, hhdr);
++    if (0 == hhdr) {
++      /* We won't collect it, hence finalizer wouldn't be run. */
++      /* This is changed for gcj, but it will be in version 6.0 of the	*/
++      /* standard collector distribution.  It costs virtually nothing	*/
++      /* here, but it's expensive to check in the hash synchronization	*/
++      /* code, where it matters.		-HB			*/
++#     ifdef THREADS
++          UNLOCK();
++    	  ENABLE_SIGNALS();
++#     endif
++      return;
++    }
+ #   ifdef THREADS
+       new_fo = (struct finalizable_object *)
+     	GC_generic_malloc_inner(sizeof(struct finalizable_object),NORMAL);
+@@ -413,7 +427,7 @@
+         new_fo -> fo_hidden_base = (word)HIDE_POINTER(base);
+ 	new_fo -> fo_fn = fn;
+ 	new_fo -> fo_client_data = (ptr_t)cd;
+-	new_fo -> fo_object_size = GC_size(base);
++	new_fo -> fo_object_size = hhdr -> hb_sz;
+ 	new_fo -> fo_mark_proc = mp;
+ 	fo_set_next(new_fo, fo_head[index]);
+ 	GC_fo_entries++;
+--- boehm-gc/gc_priv.h	Tue Jul 24 14:07:21 2001
++++ boehm-gc/gc_priv.h	Thu May 10 17:53:55 2001
+@@ -628,7 +628,7 @@
+ #    ifdef HPUX_THREADS
+ #      define LOCK() { if (!GC_test_and_clear(&GC_allocate_lock)) GC_lock(); }
+        /* The following is INCORRECT, since the memory model is too weak. */
+-#      define UNLOCK() { GC_noop1(&GC_allocate_lock); \
++#      define UNLOCK() { GC_noop1((word)&GC_allocate_lock); \
+ 			*(volatile unsigned long *)(&GC_allocate_lock) = 1; }
+ #    else
+ #      define LOCK() { if (GC_test_and_set(&GC_allocate_lock, 1)) GC_lock(); }
+@@ -641,7 +641,7 @@
+ 	    /* This is probably not necessary for ucode or gcc 2.8.	*/
+ 	    /* It may be necessary for Ragnarok and future gcc		*/
+ 	    /* versions.						*/
+-#           define UNLOCK() { GC_noop1(&GC_allocate_lock); \
++#           define UNLOCK() { GC_noop1((word)&GC_allocate_lock); \
+ 			*(volatile unsigned long *)(&GC_allocate_lock) = 0; }
+ #      endif
+ #    endif
+@@ -890,6 +890,18 @@
+ #   define SMALL_OBJ(bytes) ((bytes) <= WORDS_TO_BYTES(MAXOBJSZ))
+ #   define ADD_SLOP(bytes) (bytes)
+ # endif
++# ifndef MIN_WORDS
++    /* MIN_WORDS is the size of the smallest allocated object.	*/
++    /* 1 and 2 are the only valid values.			*/
++    /* 2 must be used if:					*/
++    /* - GC_gcj_malloc can be used for objects of requested	*/
++    /*   size smaller than 2 words				*/
++#   if defined(GC_GCJ_SUPPORT)
++#     define MIN_WORDS 2   	/* Smallest allocated object.	*/
++#   else
++#     define MIN_WORDS 1
++#   endif
++# endif
+ 
+ 
+ /*
+@@ -1772,10 +1784,6 @@
+ 			/* P points to somewhere inside an object with	*/
+ 			/* debugging info.  Print a human readable	*/
+ 			/* description of the object to stderr.		*/
+-ptr_t GC_debug_object_start(/* ptr_t p */);
+-			/* P points to the start of an object that may  */
+-			/* have debug info at its head.  Return the     */
+-			/* start of the real data.                      */
+ extern void (*GC_check_heap)();
+ 			/* Check that all objects in the heap with 	*/
+ 			/* debugging info are intact.  Print 		*/
+@@ -1843,7 +1851,7 @@
+   GC_API void GC_noop();
+ # endif
+ 
+-void GC_noop1(/* word arg */);
++void GC_noop1 GC_PROTO((word));
+ 
+ /* Logging and diagnostic output: 	*/
+ GC_API void GC_printf GC_PROTO((char * format, long, long, long, long, long, long));
+--- boehm-gc/gcconfig.h	Mon May 15 10:38:35 2000
++++ boehm-gc/gcconfig.h	Wed Apr 25 17:11:11 2001
+@@ -1,6 +1,6 @@
+ /* 
+  * Copyright 1988, 1989 Hans-J. Boehm, Alan J. Demers
+- * Copyright (c) 1991-1994 by Xerox Corporation.  All rights reserved.
++ * Copyright (c) 1991-1994, 2001 by Xerox Corporation.  All rights reserved.
+  * Copyright (c) 1996 by Silicon Graphics.  All rights reserved.
+  *
+  * THIS MATERIAL IS PROVIDED AS IS, WITH ABSOLUTELY NO WARRANTY EXPRESSED
+@@ -166,7 +166,7 @@
+ #    define SPARC
+ #    define mach_type_known
+ # endif
+-# if defined(LINUX) && defined(arm)
++# if defined(LINUX) && defined(__arm__)
+ #    define ARM32
+ #    define mach_type_known
+ # endif
+@@ -297,6 +297,10 @@
+ #   endif
+ #   define mach_type_known
+ # endif
++# if defined(__embedded__) && defined(PPC)
++#    define POWERPC
++#    define mach_type_known
++# endif
+ 
+ /* Feel free to add more clauses here */
+ 
+@@ -573,6 +577,17 @@
+ #     define STACKBOTTOM ((ptr_t) 0xc0000000)
+ #     define DATAEND	/* not needed */
+ #   endif
++#   ifdef __embedded__
++#     define ALIGNMENT 4
++#     define OS_TYPE "EMBEDDED"
++      extern void __end, __dso_handle;
++#     define DATASTART (&__dso_handle)  /* OK, that's ugly.  */
++#     define DATAEND (&__end)
++	/* Stack starts at 0xE0000000 for the simulator.  */
++#     undef STACK_GRAN
++#     define STACK_GRAN 0x10000000
++#     define HEURISTIC1
++#   endif
+ # endif
+ 
+ # ifdef VAX
+@@ -1054,7 +1069,7 @@
+ #   ifdef OSF1
+ #	define OS_TYPE "OSF1"
+ #   	define DATASTART ((ptr_t) 0x140000000)
+-	extern _end;
++	extern int _end;
+ #   	define DATAEND ((ptr_t) &_end)
+ #   	define HEURISTIC2
+ 	/* Normally HEURISTIC2 is too conervative, since		*/
+@@ -1101,11 +1116,20 @@
+ #       define CPP_WORDSZ 64
+ 	/* This should really be done through /proc, but that	*/
+ 	/* requires we run on an IA64 kernel.			*/
+-#       define STACKBOTTOM ((ptr_t) 0xa000000000000000l)
++	/* The following works on NUE and older kernels:	*/
++/* #       define STACKBOTTOM ((ptr_t) 0xa000000000000000l)	*/
++	/* This does not work on NUE:				*/
++#       define LINUX_STACKBOTTOM
+ 	/* We also need the base address of the register stack	*/
+-	/* backing store.  There is probably a better way to	*/
+-	/* get that, too ...					*/
+-#	define BACKING_STORE_BASE ((ptr_t) 0x9fffffff80000000l)
++	/* backing store.  There should be a better way to get	*/
++	/* this:						*/
++#	define APPROX_BS_BASE ((word)GC_stackbottom-0x80000000)
++	/* We round to the next multiple of 1 MB, to compensate	*/
++	/* for the fact that the stack base is displaced by	*/
++	/* the environment, etc.				*/
++#	define BACKING_STORE_BASE \
++		(ptr_t)((APPROX_BS_BASE + 0xfffff) & ~0xfffff)
++
+ #	if 1
+ #	    define SEARCH_FOR_DATA_START
+ #	    define DATASTART GC_data_start
+--- boehm-gc/gcj_mlc.c	Mon May 15 10:38:35 2000
++++ boehm-gc/gcj_mlc.c	Wed Apr 25 17:11:11 2001
+@@ -139,7 +139,6 @@
+         } else {
+             *opp = obj_link(op);
+             GC_words_allocd += lw;
+-            FASTUNLOCK();
+         }
+ 	*(void **)op = ptr_to_struct_containing_descr;
+ 	UNLOCK();
+@@ -268,7 +267,6 @@
+         } else {
+             *opp = obj_link(op);
+             GC_words_allocd += lw;
+-            FASTUNLOCK();
+         }
+ 	*(void **)op = ptr_to_struct_containing_descr;
+ 	UNLOCK();
+--- boehm-gc/linux_threads.c	Thu Apr 27 11:35:16 2000
++++ boehm-gc/linux_threads.c	Wed Apr 25 17:11:12 2001
+@@ -201,6 +201,7 @@
+       if (sigdelset(&mask, SIGINT) != 0) ABORT("sigdelset() failed");
+       if (sigdelset(&mask, SIGQUIT) != 0) ABORT("sigdelset() failed");
+       if (sigdelset(&mask, SIGTERM) != 0) ABORT("sigdelset() failed");
++      if (sigdelset(&mask, SIGABRT) != 0) ABORT("sigdelset() failed");
+ #   endif
+     do {
+ 	    me->signal = 0;
+@@ -487,7 +488,8 @@
+ #   ifdef NO_SIGNALS
+       if (sigdelset(&act.sa_mask, SIGINT) != 0
+ 	  || sigdelset(&act.sa_mask, SIGQUIT != 0)
+-	  || sigdelset(&act.sa_mask, SIGTERM != 0)) {
++	  || sigdelset(&act.sa_mask, SIGTERM != 0)
++	  || sigdelset(&act.sa_mask, SIGABRT != 0)) {
+         ABORT("sigdelset() failed");
+       }
+ #   endif
+@@ -609,7 +611,7 @@
+ 	/* Needs to be plausible, since an asynchronous stack mark	*/
+ 	/* should not crash.						*/
+ #   else
+-      me -> stack_end = (ptr_t)(((word)(&dummy) & ~(GC_page_size - 1));
++      me -> stack_end = (ptr_t)((word)(&dummy) & ~(GC_page_size - 1));
+       me -> stack_ptr = me -> stack_end + 0x10;
+ #   endif
+     /* This is dubious, since we may be more than a page into the stack, */
+--- boehm-gc/malloc.c	Tue Apr 25 07:35:25 2000
++++ boehm-gc/malloc.c	Wed Apr 25 17:11:12 2001
+@@ -52,7 +52,7 @@
+ 	  lw = GC_size_map[lb];
+ #	else
+ 	  lw = ALIGNED_WORDS(lb);
+-	  if (lw == 0) lw = 1;
++	  if (lw == 0) lw = MIN_WORDS;
+ #       endif
+ 	opp = &(kind -> ok_freelist[lw]);
+         if( (op = *opp) == 0 ) {
+--- boehm-gc/mark.c	Mon May 15 10:38:35 2000
++++ boehm-gc/mark.c	Mon Sep  4 23:46:26 2000
+@@ -530,9 +530,6 @@
+         case DS_PROC:
+           GC_mark_stack_top_reg--;
+           credit -= PROC_BYTES;
+-#ifdef GC_DEBUG
+-	  current_p = GC_debug_object_start(current_p);
+-#endif
+           GC_mark_stack_top_reg =
+               (*PROC(descr))
+               	    (current_p, GC_mark_stack_top_reg,
+--- boehm-gc/misc.c	Tue Apr 25 07:35:26 2000
++++ boehm-gc/misc.c	Wed Apr 25 17:11:12 2001
+@@ -107,13 +107,17 @@
+     {
+ 	register unsigned i;
+ 
+-	/* Map size 0 to 1.  This avoids problems at lower levels. */
+-	  GC_size_map[0] = 1;
++	/* Map size 0 to something bigger.			   */
++        /* This avoids problems at lower levels. 		   */
+ 	/* One word objects don't have to be 2 word aligned.	   */
+-	  for (i = 1; i < sizeof(word); i++) {
+-	      GC_size_map[i] = 1;
++	  for (i = 0; i < sizeof(word); i++) {
++	      GC_size_map[i] = MIN_WORDS;
+ 	  }
+-	  GC_size_map[sizeof(word)] = ROUNDED_UP_WORDS(sizeof(word));
++#	  if MIN_WORDS > 1
++	    GC_size_map[sizeof(word)] = MIN_WORDS;
++#	  else
++	    GC_size_map[sizeof(word)] = ROUNDED_UP_WORDS(sizeof(word));
++#	  endif
+ 	for (i = sizeof(word) + 1; i <= 8 * sizeof(word); i++) {
+ #           ifdef ALIGN_DOUBLE
+ 	      GC_size_map[i] = (ROUNDED_UP_WORDS(i) + 1) & (~1);
+@@ -202,7 +206,7 @@
+  */
+ word GC_stack_last_cleared = 0;	/* GC_no when we last did this */
+ # ifdef THREADS
+-#   define CLEAR_SIZE 2048
++#   define CLEAR_SIZE 512
+ # else
+ #   define CLEAR_SIZE 213
+ # endif
+--- boehm-gc/os_dep.c	Thu Jul 13 16:51:17 2000
++++ boehm-gc/os_dep.c	Wed Apr 25 17:11:12 2001
+@@ -144,20 +144,37 @@
+ #endif
+ 
+ #if defined(SEARCH_FOR_DATA_START)
+-  /* The following doesn't work if the GC is in a dynamic library.	*/
+   /* The I386 case can be handled without a search.  The Alpha case	*/
+   /* used to be handled differently as well, but the rules changed	*/
+   /* for recent Linux versions.  This seems to be the easiest way to	*/
+   /* cover all versions.						*/
+-  ptr_t GC_data_start;
+ 
+-  extern char * GC_copyright[];  /* Any data symbol would do. */
++# ifdef LINUX
++#   pragma weak __data_start
++    extern int __data_start;
++#   pragma weak data_start
++    extern int data_start;
++# endif /* LINUX */
++  extern int _end;
++
++  ptr_t GC_data_start;
+ 
+   void GC_init_linux_data_start()
+   {
+     extern ptr_t GC_find_limit();
+ 
+-    GC_data_start = GC_find_limit((ptr_t)GC_copyright, FALSE);
++#   ifdef LINUX
++      /* Try the easy approaches first:	*/
++      if (&__data_start != 0) {
++	  GC_data_start = (ptr_t)(&__data_start);
++	  return;
++      }
++      if (&data_start != 0) {
++	  GC_data_start = (ptr_t)(&data_start);
++	  return;
++      }
++#   endif /* LINUX */
++    GC_data_start = GC_find_limit((ptr_t)(&_end), FALSE);
+   }
+ #endif
+ 
+--- boehm-gc/test.c	Tue Apr 25 07:35:27 2000
++++ boehm-gc/test.c	Wed Apr 25 17:11:12 2001
+@@ -958,17 +958,17 @@
+ 		"This test program is not designed for leak detection mode\n");
+ 	(void)GC_printf0("Expect lots of problems.\n");
+ #   endif
+-    if (GC_size(GC_malloc(7)) != 8
++    if (GC_size(GC_malloc(7)) != 8 &&
++	GC_size(GC_malloc(7)) != MIN_WORDS * sizeof(GC_word)
+ 	|| GC_size(GC_malloc(15)) != 16) {
+ 	    (void)GC_printf0("GC_size produced unexpected results\n");
+ 	    FAIL;
+     }
+-    if (GC_size(GC_malloc(0)) != 4 && GC_size(GC_malloc(0)) != 8) {
++    if (GC_size(GC_malloc(0)) != MIN_WORDS * sizeof(GC_word)) {
+     	(void)GC_printf0("GC_malloc(0) failed\n");
+ 	    FAIL;
+     }
+-    if (GC_size(GC_malloc_uncollectable(0)) != 4
+-        && GC_size(GC_malloc_uncollectable(0)) != 8) {
++    if (GC_size(GC_malloc_uncollectable(0)) != MIN_WORDS * sizeof(GC_word)) {
+     	(void)GC_printf0("GC_malloc_uncollectable(0) failed\n");
+ 	    FAIL;
+     }

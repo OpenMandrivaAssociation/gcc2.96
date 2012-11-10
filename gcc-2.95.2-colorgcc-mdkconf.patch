@@ -1,0 +1,54 @@
+--- gcc-2.95.2/colorgcc-1.3.2/colorgcc.mdkconf	Tue Dec 26 06:40:19 2000
++++ gcc-2.95.2/colorgcc-1.3.2/colorgcc	Tue Dec 26 06:40:19 2000
+@@ -93,10 +93,10 @@
+ 
+ sub initDefaults
+ {
+-   $compilerPaths{"gcc"} = "/usr/local/bin/gcc";
+-   $compilerPaths{"g++"} = "/usr/local/bin/g++";
+-   $compilerPaths{"cc"}  = "/usr/bin/cc";
+-   $compilerPaths{"c++"} = "/usr/local/bin/c++";
++   $compilerPaths{"gcc"} = "/usr/bin/gcc-2.96";
++   $compilerPaths{"g++"} = "/usr/bin/g++-2.96";
++   $compilerPaths{"cc"}  = "/usr/bin/gcc-2.96";
++   $compilerPaths{"c++"} = "/usr/bin/g++-2.96";
+ 
+    $nocolor{"dumb"} = "true";
+ 
+@@ -181,10 +181,13 @@
+ 
+ # Read the configuration file, if there is one.
+ $configFile = $ENV{"HOME"} . "/.colorgccrc";
++$default_configFile = "/etc/colorgccrc";
+ if (-f $configFile)
+ {
+    loadPreferences($configFile);
+-}
++} elsif (-f $default_configFile ) {
++	loadPreferences($default_configFile)
++	}
+ 
+ # Figure out which compiler to invoke based on our program name.
+ $0 =~ m%.*/(.*)$%;
+--- gcc-2.95.2/colorgcc-1.3.2/colorgccrc.mdkconf	Tue Dec 26 06:40:19 2000
++++ gcc-2.95.2/colorgcc-1.3.2/colorgccrc	Tue Dec 26 06:40:58 2000
+@@ -22,14 +22,14 @@
+ 
+ # Define the paths to the actual location of the various compilers.
+ # (Currently, colorgcc only understands these: g++ gcc c++ cc)
+-g++: /usr/local/bin/g++
+-gcc: /usr/local/bin/gcc
+-c++: /usr/local/bin/c++
+-cc:  /usr/bin/cc
++g++: /usr/bin/g++-2.96
++gcc: /usr/bin/gcc-2.96
++c++: /usr/bin/g++-2.96
++cc:  /usr/bin/gcc-2.96
+ 
+ # Don't do color if our terminal type ($TERM) is one of these.
+ # (List all terminal types on one line, seperated by whitespace.)
+-nocolor: dumb
++nocolor: dumb emacs
+ 
+ # Text between ` and ' is usually source code.
+ srcColor: bold cyan

@@ -1,0 +1,55 @@
+--- gcc-2.95.2/gcc/java/jcf-path.c.libjava-datadir	Wed Feb 20 17:50:46 2002
++++ gcc-2.95.2/gcc/java/jcf-path.c	Wed Feb 20 17:51:05 2002
+@@ -254,6 +254,8 @@
+ 
+       strcpy (try + len, "share");
+       strcat (try, sep);
++      strcat (try, "gcc-" VERSION);
++      strcat (try, sep);
+       strcat (try, "libgcj.zip");
+       if (! stat (try, &stat_b))
+ 	{
+@@ -266,6 +268,8 @@
+ 	  strcat (try, sep);
+ 	  strcat (try, "share");
+ 	  strcat (try, sep);
++      strcat (try, "gcc-" VERSION);
++      strcat (try, sep);
+ 	  strcat (try, "libgcj.zip");
+ 	  if (! stat (try, &stat_b))
+ 	    {
+--- gcc-2.95.2/gcc/Makefile.in.libjava-datadir	Wed Feb 20 17:50:58 2002
++++ gcc-2.95.2/gcc/Makefile.in	Wed Feb 20 18:18:18 2002
+@@ -294,9 +294,10 @@
+ infodir = @infodir@
+ # Where cpp should go besides $prefix/bin if necessary
+ cpp_install_dir = @cpp_install_dir@
++# where the data files go (e.g. libgcj.zip)
++datadir = @datadir@
+ # where the locale files go
+-datadir = $(prefix)/@DATADIRNAME@
+-localedir = $(datadir)/locale
++localedir = $(prefix)/@DATADIRNAME@/locale
+ # Extension (if any) to put in installed man-page filename.
+ manext = .1
+ objext = .o
+--- gcc-2.95.2/libgcj/libjava/Makefile.am.libjava-datadir	Wed Feb 20 17:51:05 2002
++++ gcc-2.95.2/libgcj/libjava/Makefile.am	Wed Feb 20 17:51:06 2002
+@@ -1117,6 +1117,7 @@
+ 	"PICFLAG_FOR_TARGET=$(PICFLAG_FOR_TARGET)" \
+ 	"SHELL=$(SHELL)" \
+ 	"exec_prefix=$(exec_prefix)" \
++	"datadir=$(datadir)" \
+ 	"infodir=$(infodir)" \
+ 	"libdir=$(libdir)" \
+ 	"prefix=$(prefix)" \
+--- gcc-2.95.2/libgcj/libjava/Makefile.in.libjava-datadir	Wed Feb 20 17:51:05 2002
++++ gcc-2.95.2/libgcj/libjava/Makefile.in	Wed Feb 20 17:51:06 2002
+@@ -882,6 +882,7 @@
+ 	"PICFLAG_FOR_TARGET=$(PICFLAG_FOR_TARGET)" \
+ 	"SHELL=$(SHELL)" \
+ 	"exec_prefix=$(exec_prefix)" \
++	"datadir=$(datadir)" \
+ 	"infodir=$(infodir)" \
+ 	"libdir=$(libdir)" \
+ 	"prefix=$(prefix)" \

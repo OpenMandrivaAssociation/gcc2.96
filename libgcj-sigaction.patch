@@ -1,0 +1,54 @@
+2001-02-14  Jakub Jelinek  <jakub@redhat.com>
+
+	* include/i386-signal.h (INIT_SEGV, INIT_FPE): Use sigaction instead
+	of __sigaction or syscall (SYS_sigaction).
+	* include/ppc-signal.h (INIT_SEGV, INIT_FPE): Likewise.
+
+--- libgcj/libjava/include/i386-signal.h.jj	Wed Feb 14 04:53:06 2001
++++ libgcj/libjava/include/i386-signal.h	Wed Feb 14 04:51:39 2001
+@@ -127,7 +127,7 @@ do								\
+     act.sa_handler = catch_segv;				\
+     sigemptyset (&act.sa_mask);					\
+     act.sa_flags = 0;						\
+-    __sigaction (SIGSEGV, &act, NULL);				\
++    sigaction (SIGSEGV, &act, NULL);				\
+   }								\
+ while (0)  
+ 
+@@ -140,7 +140,7 @@ do								\
+     act.sa_handler = catch_fpe;					\
+     sigemptyset (&act.sa_mask);					\
+     act.sa_flags = 0;						\
+-    __sigaction (SIGFPE, &act, NULL);				\
++    sigaction (SIGFPE, &act, NULL);				\
+   }								\
+ while (0)  
+ 
+--- libgcj/libjava/include/ppc-signal.h.jj	Tue May 16 10:38:21 2000
++++ libgcj/libjava/include/ppc-signal.h	Wed Feb 14 04:51:39 2001
+@@ -1,6 +1,6 @@
+ // ppc-signal.h - Catch runtime signals and turn them into exceptions.
+ 
+-/* Copyright (C) 2000  Free Software Foundation
++/* Copyright (C) 2000, 2001  Free Software Foundation
+ 
+    This file is part of libgcj.
+ 
+@@ -95,7 +95,7 @@ do								\
+     act.sa_handler = _Jv_catch_segv;				\
+     sigemptyset (&act.sa_mask);					\
+     act.sa_flags = 0;						\
+-    __sigaction (SIGSEGV, &act, NULL);				\
++    sigaction (SIGSEGV, &act, NULL);				\
+   }								\
+ while (0)  
+ 
+@@ -108,7 +108,7 @@ do								\
+     act.sa_handler = _Jv_catch_fpe;				\
+     sigemptyset (&act.sa_mask);					\
+     act.sa_flags = 0;						\
+-    __sigaction (SIGFPE, &act, NULL);				\
++    sigaction (SIGFPE, &act, NULL);				\
+   }								\
+ while (0)  
+ 
